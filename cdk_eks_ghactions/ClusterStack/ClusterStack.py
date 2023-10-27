@@ -41,7 +41,7 @@ class ClusterStack(Stack):
         #     iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess")
         # )
 
-        eks.Cluster(
+        cluster = eks.Cluster(
             self,
             "eks-cluster",
             vpc=vpc_stack.vpc,

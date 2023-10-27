@@ -132,9 +132,12 @@ jobs:
 
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
+          helm repo update
+
           kubectl get pods -n kube-system
 
           helm install prometheus \
+            --values manifests/prometheus-values.yaml
             --namespace monitoring \
             --create-namespace \
             --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2""

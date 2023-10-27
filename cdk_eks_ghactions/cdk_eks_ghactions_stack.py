@@ -26,6 +26,9 @@ class CdkEksGhactionsStack(Stack):
             self,
             "cluster-stack",
             vpc_stack,
+            env=Environment(
+                account=os.getenv("AWS_ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
+            ),
         )
 
         # cluster_stack = eks.Cluster(
