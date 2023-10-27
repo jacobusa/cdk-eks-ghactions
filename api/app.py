@@ -3,9 +3,10 @@ from flask import Flask
 import requests
 from dotenv import load_dotenv
 from waitress import serve
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
-
+metrics = PrometheusMetrics(app)
 load_dotenv()
 API_KEY = os.getenv("OWM_API_KEY")
 

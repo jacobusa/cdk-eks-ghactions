@@ -63,3 +63,45 @@ class ClusterStack(Stack):
                 eks.ClusterLoggingTypes.CONTROLLER_MANAGER,
             ],
         )
+        # role_name = 'aws-load-balancer-controller'
+
+        # nodegroup.role.add_to_principal_policy(
+        #     iam.PolicyStatement(
+        #         actions=[
+        #             "ec2:*",
+        #             "elasticloadbalancing:*",
+        #             "cognito-idp:DescribeUserPoolClient",
+        #             "acm:ListCertificates",
+        #             "acm:DescribeCertificate",
+        #             "iam:ListServerCertificates",
+        #             "iam:GetServerCertificate",
+        #             "waf-regional:GetWebACL",
+        #             "waf-regional:GetWebACLForResource",
+        #             "waf-regional:AssociateWebACL",
+        #             "waf-regional:DisassociateWebACL",
+        #             "wafv2:GetWebACL",
+        #             "wafv2:GetWebACLForResource",
+        #             "wafv2:AssociateWebACL",
+        #             "wafv2:DisassociateWebACL",
+        #             "shield:GetSubscriptionState",
+        #             "shield:DescribeProtection",
+        #             "shield:CreateProtection",
+        #             "shield:DeleteProtection"
+        #         ],
+        #         resources=["*"],
+        #     )
+        # )
+
+        # eks.HelmChart(
+        #     self,
+        #     "eks-aws-load-balancer-controller",
+        #     cluster=cluster,
+        #     chart="aws-load-balancer-controller",
+        #     repository="https://aws.github.io/eks-charts",
+        #     release="aws-load-balancer-controller",
+        #     namespace="kube-system",
+        #     values={
+        #         "clusterName": cluster.cluster_name,
+        #     },
+        #     wait=True,
+        # )
