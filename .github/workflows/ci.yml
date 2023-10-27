@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -85,7 +85,7 @@ jobs:
           cdk --version
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -161,3 +161,21 @@ jobs:
 
           kubectl get all -n monitoring
           # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
+
+      # - name: Install NGINX Controller
+      #   run: |
+      #     helm repo add ingress-nginx \
+      #       https://kubernetes.github.io/ingress-nginx
+
+      #     helm repo update
+
+      #     kubectl get pods -n kube-system
+
+      #     helm install prometheus \
+      #       --values manifests/prometheus-values.yaml
+      #       --namespace monitoring \
+      #       --create-namespace \
+      #       --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2""
+
+      #     kubectl get all -n monitoring
+      #     # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
