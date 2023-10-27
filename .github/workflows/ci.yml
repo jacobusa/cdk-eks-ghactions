@@ -1,4 +1,4 @@
-name: ems-web-app-ci-dev
+name: ci
 
 on:
   push:
@@ -63,7 +63,7 @@ jobs:
 
       - name: Update k8s file
         run: |
-          sed -i "s/weather-api:.*/weather-api:$DOCKER_TAG_VERSION/" manifests/deployment.yaml
+          sed -i "s/weather-api:.*/weather-api:$DOCKER_TAG_VERSION/" manifests/api-deployment.yaml
 
   cdk:
     name: "️🚀"
@@ -109,7 +109,7 @@ jobs:
 
       - name: Update secrets file
         run: |
-          sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY }}/" manifests/secret.yaml
+          sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY }}/" manifests/api-secret.yaml
 
       - name: Deploy to EKS
         run: |
