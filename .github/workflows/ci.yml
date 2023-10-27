@@ -70,6 +70,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-image-push
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -83,8 +86,6 @@ jobs:
           cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION # Replace with your AWS account ID and desired region
       - name: Deploy EKS Cluster with CDK
         run: |
-          pwd
-          ls -la
           cdk deploy --all --require-approval=never
 
   manage-k8s:
@@ -92,6 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: cdk
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
