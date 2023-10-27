@@ -6,7 +6,7 @@ on:
       - main
 env:
   DOCKER_USER: ${{secrets.DOCKER_USER}}
-  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
   REPO_NAME: ${{secrets.REPO_NAME}}
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
 
       - name: Login to Docker Hub
         run: | # log into docker hub account
-          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+          docker login -u $DOCKER_USER -p $DOCKER_TOKEN
 
       - name: Get current date # get the date of the build
         id: date
