@@ -115,7 +115,12 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kube config
-        run: aws eks update-kubeconfig --name eks-cluster --region $AWS_REGION
+        run: |
+          aws eks update-kubeconfig --name eks-cluster --region $AWS_REGION
+          kubectl get pod
+          kubectl get svc
+          kubectl get ns
+          kubectl get all
 
       - name: Run test commands
         run: |
@@ -164,17 +169,25 @@ jobs:
 
       - name: Install NGINX Controller
         run: |
-          helm repo add ingress-nginx \
-            https://kubernetes.github.io/ingress-nginx
 
-          helm repo update
 
-          kubectl get all
+          helm upgrade --install ingress-nginx ingress-nginx \
+             --repo https://kubernetes.github.io/ingress-nginx \
+             --namespace ingress-nginx \
+             --values manifests/nginx-values.yaml
+             --create-namespace
 
-          helm install nginx \
-            --namespace ingress \
-            --values manifests/nginx-values.yaml
-            --output-dir nginx
+          # helm repo add ingress-nginx \
+          #   https://kubernetes.github.io/ingress-nginx
+
+          # helm repo update
+
+          # kubectl get all
+
+          # helm install nginx \
+          #   --namespace ingress \
+          #   --values manifests/nginx-values.yaml
+          #   --output-dir nginx
 
 
 

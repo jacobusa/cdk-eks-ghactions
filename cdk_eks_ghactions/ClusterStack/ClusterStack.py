@@ -63,6 +63,7 @@ class ClusterStack(Stack):
                 eks.ClusterLoggingTypes.CONTROLLER_MANAGER,
             ],
         )
+        aws_auth = eks.AwsAuth(self, "aws-auth", cluster=cluster)
         # role_name = 'aws-load-balancer-controller'
 
         # nodegroup.role.add_to_principal_policy(
