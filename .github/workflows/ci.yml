@@ -78,7 +78,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: Install and configure AWS CDK
         run: |
           npm install -g aws-cdk
@@ -151,7 +151,7 @@ jobs:
 
           helm repo update
 
-          kubectl get pods -n kube-system
+          kubectl get all
 
           helm install prometheus \
             --values manifests/prometheus-values.yaml
@@ -162,20 +162,21 @@ jobs:
           kubectl get all -n monitoring
           # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
 
-      # - name: Install NGINX Controller
-      #   run: |
-      #     helm repo add ingress-nginx \
-      #       https://kubernetes.github.io/ingress-nginx
+      - name: Install NGINX Controller
+        run: |
+          helm repo add ingress-nginx \
+            https://kubernetes.github.io/ingress-nginx
 
-      #     helm repo update
+          helm repo update
 
-      #     kubectl get pods -n kube-system
+          kubectl get all
 
-      #     helm install prometheus \
-      #       --values manifests/prometheus-values.yaml
-      #       --namespace monitoring \
-      #       --create-namespace \
-      #       --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2""
+          helm install nginx \
+            --namespace ingress \
+            --values manifests/nginx-values.yaml
+            --output-dir nginx
 
-      #     kubectl get all -n monitoring
-      #     # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
+
+
+          kubectl get all -n monitoring
+          # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
