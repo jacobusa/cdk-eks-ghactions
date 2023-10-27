@@ -25,6 +25,10 @@ class ClusterStack(Stack):
         #         iam.AnyPrincipal(),  # importent, else a SSO user can't assume
         #     ),
         # )
+        # Create an IAM Role to be assumed by admins
+        masters_role = iam.Role(
+            self, "eks-admin", assumed_by=iam.AccountRootPrincipal()
+        )
         # masters_role.add_managed_policy(
         #     iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess")
         # )
@@ -45,7 +49,7 @@ class ClusterStack(Stack):
             self,
             "eks-cluster",
             vpc=vpc_stack.vpc,
-            # masters_role=masters_role,
+            masters_role=masters_role,
             # kubectl_layer=lambda_layer_kubectl.KubectlLayer(self, "kubectl-layer"),
             version=eks.KubernetesVersion.V1_27,
             cluster_name="eks-cluster",
