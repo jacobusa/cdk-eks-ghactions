@@ -83,6 +83,8 @@ jobs:
           cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION # Replace with your AWS account ID and desired region
       - name: Deploy EKS Cluster with CDK
         run: |
+          pwd
+          ls -la
           cdk deploy --all --require-approval=never
 
   manage-k8s:
