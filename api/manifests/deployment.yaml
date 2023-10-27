@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: weather-api
+  name: weather-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: weather-api-pod
+  template:
+    metadata:
+      labels:
+        app: weather-api-pod
+    spec:
+      containers:
+        - name: weather-api
+          image: jbadenhorst/weather-api-app:latest
+          ports:
+            - containerPort: 8080
+      restartPolicy: Always
