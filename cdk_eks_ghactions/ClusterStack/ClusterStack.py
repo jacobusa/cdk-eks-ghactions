@@ -22,7 +22,7 @@ class ClusterStack(Stack):
         #     role_name="aws-eks-admin",
         #     assumed_by=iam.CompositePrincipal(
         #         iam.ServicePrincipal(service="eks.amazonaws.com"),
-        #         iam.AnyPrincipal(),  # importent, else a SSO user can't assume
+        #         iam.AnyPrincipal()
         #     ),
         # )
         # Create an IAM Role to be assumed by admins
