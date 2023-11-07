@@ -28,3 +28,6 @@ run-migrations:
 	flask --app api/app.py db upgrade --directory api/migrations
 
 all: install lint test
+
+install-cdk-only:
+	pip install -r requirements-cdk.txt

@@ -79,14 +79,15 @@ jobs:
           npm install -g aws-cdk
           cdk --version
 
-      # - name: Set up Python ${{ matrix.python-version }}
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
-      #     cache: "pip"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
       - name: Install dependencies
         run: |
+          make install-cdk-only
           cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION # Replace with your AWS account ID and desired region
 
       - name: Deploy EKS Cluster with CDK
