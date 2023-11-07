@@ -3,6 +3,8 @@
 ```bash
 source source .venv/bin/activate
 pip install -r requirements.txt
+docker-compose up
+make run-migraions
 make run-dev
 ```
 

@@ -67,25 +67,25 @@ class ClusterStack(Stack):
             ],
         )
 
-        ingress_controller_release_name = "ingress-controller"
-        nginxIngressChart = eks.HelmChart(
-            self,
-            "nginx-ingress-chart",
-            cluster=cluster,
-            repository="https://helm.nginx.com/stable",
-            chart="nginx-ingress",
-            release="nginx-ingress",
-        )
-        alb_address = eks.KubernetesObjectValue(
-            self,
-            "elbAddress",
-            cluster=cluster,
-            object_type="Service",
-            object_name=f"{ingress_controller_release_name}-nginx-ingress",
-            json_path=".status.loadBalancer.ingress[0].hostname",
-        )
-        self.alb_domain = alb_address.value
-        CfnOutput(self, "alb-domain", value=alb_address.value)
+        # ingress_controller_release_name = "ingress-controller"
+        # nginxIngressChart = eks.HelmChart(
+        #     self,
+        #     "nginx-ingress-chart",
+        #     cluster=cluster,
+        #     repository="https://helm.nginx.com/stable",
+        #     chart="nginx-ingress",
+        #     release="nginx-ingress",
+        # )
+        # alb_address = eks.KubernetesObjectValue(
+        #     self,
+        #     "elbAddress",
+        #     cluster=cluster,
+        #     object_type="Service",
+        #     object_name=f"{ingress_controller_release_name}-nginx-ingress",
+        #     json_path=".status.loadBalancer.ingress[0].hostname",
+        # )
+        # self.alb_domain = alb_address.value
+        # CfnOutput(self, "alb-domain", value=alb_address.value)
 
         # nginxIngressChart = eks.HelmChart(
         #     self,

@@ -5,14 +5,8 @@ metadata:
   name: flask-secret
 type: Opaque
 data:
-  OWM_API_KEY: ZDQ1MGI5MGRiZTkyOGIyYzNmNDI3MzVkZGFjOWM2Yjg=
-  # OWM_API_KEY: d450b90dbe928b2c3f42735ddac9c6b8
-  # OWM_API_KEY: <OWM_API_KEY>
-  POSTGRES_DATABASE_URI: cG9zdGdyZXNxbDovL3Bvc3RncmVzOnBvc3RncmVzQHBvc3RncmVzLXNlcnZpY2UuZGVmYXVsdC5zdmMuY2x1c3Rlci5sb2NhbDo1NDMyL3Bvc3RncmVz # postgresql://postgres:postgres@postgres-service.default.svc.cluster.local:5432/postgres
-
-  # POSTGRES_DATABASE_URI: cG9zdGdyZXNxbDovL3Bvc3RncmVzOnBvc3RncmVzQHBvc3RncmVzLXNlcnZpY2U6NTQzMi93ZWF0aGVyCg==
-  # POSTGRES_DATABASE_URI: postgresql://postgres:postgres@postgres:5432/postgres
-  # POSTGRES_DATABASE_URI: <POSTGRES_DATABASE_URI>
+  OWM_API_KEY: <OWM_API_KEY>
+  POSTGRES_DATABASE_URI: <POSTGRES_DATABASE_URI>
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -74,9 +68,14 @@ kind: Ingress
 metadata:
   name: flask-ingress
   # annotations:
-  #   kubernetes.io/ingress.class: nginx
+  #   kubernetes.io/ingress.class: ingress-nginx
 spec:
-  ingressClassName: ingress-nginx
+  tls:
+    - hosts:
+        - justadomain.xyz
+      secretName: flask-app-tls
+
+  ingressClassName: nginx
   rules:
     - host: justadomain.xyz
       http:
@@ -88,3 +87,17 @@ spec:
                 name: flask-service
                 port:
                   number: 8080
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: flask
+  namespace: default
+spec:
+  dnsNames:
+    - justadomain.xyz
+  secretName: flask-app-tls
+  issuerRef:
+    name: letsencrypt-cluster-issuer
+    kind: ClusterIssuer

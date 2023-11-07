@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, send_from_directory
 import requests
 from dotenv import load_dotenv
 from prometheus_flask_exporter import PrometheusMetrics
@@ -28,8 +28,17 @@ class Weather(db.Model):
 
 
 @app.errorhandler(404)
-def page_not_found():
+def page_not_found(e):
+    print(e)
     return render_template("404.html"), 404
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "favicon.ico",
+    )
 
 
 @app.route("/add-favorite/<city>", methods=["POST"])
@@ -41,9 +50,9 @@ def add_favorite(city: str):
     return render_template("index.html", favorites=favoritesFromDb)
 
 
-@app.route("/delete-favorite/<id>", methods=["POST"])
-def delete_favorite(id: str):
-    deleteSession = Weather.query.filter(Weather.id == id).one()
+@app.route("/delete-favorite/<favoriteiid>", methods=["POST"])
+def delete_favorite(favoriteid: str):
+    deleteSession = Weather.query.filter(Weather.id == favoriteid).one()
     db.session.delete(deleteSession)
     db.session.commit()
     return redirect("/")
@@ -57,7 +66,7 @@ def index():
         print(city_name)
 
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&units=metric&APPID={API_KEY}"
-        response = requests.get(url).json()
+        response = requests.get(url, timeout=5000).json()
         try:
             temp = response["main"]["temp"]
             weather = response["weather"][0]["description"]
@@ -74,7 +83,7 @@ def index():
                 city_name=city_name,
                 favorites=favoritesFromDb,
             )
-        except:
+        except:  # pylint: disable=bare-except
             return render_template("index.html", favorites=favoritesFromDb)
     else:
         return render_template("index.html", favorites=favoritesFromDb)
