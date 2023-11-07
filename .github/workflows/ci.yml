@@ -5,11 +5,20 @@ on:
     branches:
       - main
 env:
-  DOCKER_USER: ${{secrets.DOCKER_USER}}
-  DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
-  REPO_NAME: ${{secrets.REPO_NAME}}
   ACCOUNT_ID: ${{secrets.ACCOUNT_ID}}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_REGION: ${{secrets.AWS_REGION}}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+  DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
+  DOCKER_USER: ${{secrets.DOCKER_USER}}
+  MASTERS_ROLE_NAME: ${{secrets.MASTERS_ROLE_NAME}}
+  OWM_API_KEY_BASE64: ${{secrets.OWM_API_KEY_BASE64}}
+  POSTGRES_DATABASE_URI_BASE64: ${{secrets.POSTGRES_DATABASE_URI_BASE64}}
+  POSTGRES_DB: ${{secrets.POSTGRES_DB}}
+  POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+  POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+  REPO_NAME: ${{secrets.REPO_NAME}}
 
 jobs:
   # build:
@@ -71,9 +80,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-region: $AWS_REGION
       - name: Install and configure AWS CDK
         run: |
           npm install -g aws-cdk
@@ -114,9 +123,9 @@ jobs:
   #     - name: Configure AWS Credentials
   #       uses: aws-actions/configure-aws-credentials@v1
   #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+  #         aws-access-key-id: $AWS_ACCESS_KEY_ID
+  #         aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+  #         aws-region: $AWS_REGION
 
   #     - name: Update kube config
   #       run: |
@@ -124,11 +133,11 @@ jobs:
 
   #     - name: Update secrets file
   #       run: |
-  #         sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DB>.*/${{ secrets.POSTGRES_DB }}/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
+  #         sed -i "s/<OWM_API_KEY>.*/$OWM_API_KEY_BASE64/" manifests/flask.yaml
+  #         sed -i "s/<POSTGRES_DATABASE_URI>.*/$POSTGRES_DATABASE_URI_BASE64/" manifests/flask.yaml
+  #         sed -i "s/<POSTGRES_DB>.*/$POSTGRES_DB/" manifests/postgres.yaml
+  #         sed -i "s/<POSTGRES_USER>.*/$POSTGRES_USER/" manifests/postgres.yaml
+  #         sed -i "s/<POSTGRES_PASSWORD>.*/$POSTGRES_PASSWORD/" manifests/postgres.yaml
 
   #     - name: Install Helm
   #       uses: azure/setup-helm@v3
