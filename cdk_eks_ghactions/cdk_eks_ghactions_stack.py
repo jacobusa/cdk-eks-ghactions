@@ -2,11 +2,12 @@ import os
 from constructs import Construct
 from aws_cdk import (
     Stack,
-    aws_sns_subscriptions as subs,
     Environment,
+    aws_route53 as route53,
+    aws_route53_targets as route53_targets,
 )
-from cdk_eks_ghactions.ClusterStack.ClusterStack import ClusterStack
-from cdk_eks_ghactions.NetworkStack.NetworkStack import NetworkStack
+from cdk_eks_ghactions.ClusterStack import ClusterStack
+from cdk_eks_ghactions.NetworkStack import NetworkStack
 
 # from cdk_eks_ghactions import NetworkStack
 
@@ -30,6 +31,14 @@ class CdkEksGhactionsStack(Stack):
                 account=os.getenv("AWS_ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
             ),
         )
+        # route53.ARecord(
+        #     self,
+        #     "a-record",
+        #     zone=vpc_stack.hosted_zone,
+        #     target=route53.RecordTarget.from_alias(
+        #         route53_targets.LoadBalancerTarget(cluster_stack.alb_domain)
+        #     ),
+        # )
 
         # cluster_stack = eks.Cluster(
         #     self,

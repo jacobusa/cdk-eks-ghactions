@@ -1,6 +1,9 @@
 from aws_cdk import (
     Stack,
     aws_ec2 as ec2,
+    aws_route53 as route53,
+    aws_elasticloadbalancingv2 as elbv2,
+    aws_route53_targets as route53_targets,
 )
 from constructs import Construct
 
@@ -11,6 +14,9 @@ class NetworkStack(Stack):
         self.vpc_name = construct_id
         self.construct_id = construct_id
         self.__create_vpc()
+        self.hosted_zone = route53.HostedZone(
+            self, "hosted_zone", zone_name="justadomain.xyz"
+        )
 
     def __create_vpc(self):
         self.vpc: ec2.Vpc = ec2.Vpc(
@@ -18,7 +24,7 @@ class NetworkStack(Stack):
             self.construct_id,
             vpc_name=self.vpc_name,
             ip_addresses=ec2.IpAddresses.cidr("10.0.0.0/16"),
-            max_azs=2,
+            max_azs=3,
             enable_dns_hostnames=True,
             enable_dns_support=True,
             subnet_configuration=[
@@ -36,5 +42,15 @@ class NetworkStack(Stack):
                 #     cidr_mask=20,
                 # ),
             ],
-            nat_gateways=1,
+            # nat_gateways=1,
         )
+
+        # self.alb = elbv2.ApplicationLoadBalancer(self, "alb", vpc=self.vpc)
+        # route53.ARecord(
+        #     self,
+        #     "a-record",
+        #     zone=self.hosted_zone,
+        #     target=route53.RecordTarget.from_alias(
+        #         route53_targets.LoadBalancerTarget(self.alb)
+        #     ),
+        # )

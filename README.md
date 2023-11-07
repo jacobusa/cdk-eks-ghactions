@@ -1,13 +1,24 @@
+## To run the flask app locally,
 
-# Welcome to your CDK Python project!
+```bash
+source source .venv/bin/activate
+pip install -r requirements.txt
+make run-dev
+```
+
+## To access pgadmin
+
+- After `docker-compose up` has been run, go to localhost:8888 in browser. The connection host to create is host.docker.internal and the secret is in the docker-compose file.
+
+### Welcome to your CDK Python project!
 
 You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`cdk_eks_ghactions_stack`)
 which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-This project is set up like a standard Python project.  The initialization process also creates
-a virtualenv within this project, stored under the .venv directory.  To create the virtualenv
+This project is set up like a standard Python project. The initialization process also creates
+a virtualenv within this project, stored under the .venv directory. To create the virtualenv
 it assumes that there is a `python3` executable in your path with access to the `venv` package.
 If for any reason the automatic creation of the virtualenv fails, you can create the virtualenv
 manually once the init process completes.
@@ -56,10 +67,10 @@ command.
 
 ## Useful commands
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+- `cdk ls` list all stacks in the app
+- `cdk synth` emits the synthesized CloudFormation template
+- `cdk deploy` deploy this stack to your default AWS account/region
+- `cdk diff` compare deployed stack with current state
+- `cdk docs` open CDK documentation
 
 Enjoy!
