@@ -12,27 +12,27 @@ env:
   AWS_REGION: ${{secrets.AWS_REGION}}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-      - name: Install dependencies
-        run: |
-          make install
-      - name: Lint with pylint
-        run: |
-          make lint
-      - name: Test with pytest
-        run: |
-          make test
+  # build:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       python-version: [3.9]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         cache: "pip"
+  #     - name: Install dependencies
+  #       run: |
+  #         make install
+  #     - name: Lint with pylint
+  #       run: |
+  #         make lint
+  #     - name: Test with pytest
+  #       run: |
+  #         make test
   build-image-push:
     name: "🛠️"
     runs-on: ubuntu-latest

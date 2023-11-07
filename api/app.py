@@ -28,7 +28,7 @@ class Weather(db.Model):
 
 
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found():
     return render_template("404.html"), 404
 
 
