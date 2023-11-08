@@ -17,7 +17,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tag-version
-          path: tag-version.txt
+          path: artifacts/tag-version.txt
 
   get:
     name: "🧪 Test app"
@@ -28,13 +28,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: tag-version
-          path: tag-version.txt
+          path: artifacts/tag-version.txt
       - name: Get current date # get the date of the build
         id: date
         run: |
           ls
           pwd
-          TAG_VERSION=$(cat tag-version.txt | sed 's/\"//g')
+          TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
           echo "$TAG_VERSION"
   # build:
   #   name: "🧪 Test app"
