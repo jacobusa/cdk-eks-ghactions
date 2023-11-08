@@ -1,21 +1,76 @@
+[![ci](https://github.com/jacobusa/cdk-eks-ghactions/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jacobusa/cdk-eks-ghactions/actions/workflows/ci.yml)
+
+# One Click Deploy Microservices
+
+Fully automated one click deploy of a microservice using cdk and github actions pipeline. Features many state of the art devops tools to deploy a python flask app with postgresql database into an eks cluster on AWS. Included is a local development environment using docker-compose, cdk setup with VPC, EKS, SSL cert management, Route53, and fully automated pipeline using github actions.
+
+<br>
+
+**_MANUAL STEP_:** The only bootstrapping that is not automated is the manual change of nameservers from your domain registrar to the cdk created hosted zone in route53. Once you run the pipeline once, change the nameservers in your registrar to the route53 name servers and then wait until the app is running at app.<DOMAIN>.com, grafana.<DOMAIN>.com, and prometheus.<DOMAIN>.com.
+
+<br>
+
+**_GITHUB ACTIONS:_** Before you run the github actions pipeline, be sure to enter the variables in the .env.example file into github actions secrets.
+<br>
+
+## Tools
+
+- Python Flask weather API with migrations equiped
+- PostgreSQL database
+- Docker and docker-compose for container management
+- AWS CDK (VPC, EKS, Route53)
+- NGINX Ingress Controller Network Load Balancer
+- Prometheus Monitoring scraping metrics from flask app, postgres, and nginx load balancer
+- Grafana dashboard
+- Route53 domain configuration for prometheus (prometheus.<DOMAIN>.com, grafana.<DOMAIN>.com, app.<DOMAIN>.com)
+- SSL Cert management using cert-manager and letsencrypt for domains above
+- Github actions pipeline steps
+  - Build and test application
+  - Build docker image and push with cache
+  - Deploy CDK network and cluster stack changes
+  - Configuration of EKS Cluster
+  - Deploy cdk route stack with resources built in EKS cluster
+
 ## To run the flask app locally,
 
 ```bash
 source source .venv/bin/activate
+mv .env.example .env
+# fill out the .env file
 pip install -r requirements.txt
 docker-compose up
 make run-migraions
 make run-dev
 ```
 
+## To deploy cdk stack manually
+
+```bash
+source source .venv/bin/activate
+mv .env.example .env
+# fill out the .env file
+pip install -r requirements-cdk.txt
+cdk deploy network-stack
+cdk deploy cluster-stack
+# Must have the nginx load balancer already deployed in the kubernetes cluster and it's dns name available as env NLB_DOMAIN
+# To obtain the dns name of the nginx load balancer, run
+# kubectl get svc ingress-nginx-controller -n ingress-nginx -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN
+```
+
+## Global Teardown
+
+- Manually delete the created nginx network load balancer from aws console.
+
+```bash
+cdk destroy --all
+```
+
 ## To access pgadmin
 
 - After `docker-compose up` has been run, go to localhost:8888 in browser. The connection host to create is host.docker.internal and the secret is in the docker-compose file.
 
-### Welcome to your CDK Python project!
-
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`cdk_eks_ghactions_stack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+### More about CDK
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
@@ -60,7 +115,7 @@ You can now begin exploring the source code, contained in the hello directory.
 There is also a very trivial test included that can be run like this:
 
 ```
-$ pytest
+$ make test
 ```
 
 To add additional dependencies, for example other CDK libraries, just add to

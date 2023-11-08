@@ -1,8 +1,6 @@
 from aws_cdk import (
     Stack,
     aws_ec2 as ec2,
-    aws_route53 as route53,
-    aws_route53_targets as route53_targets,
 )
 from constructs import Construct
 
@@ -13,9 +11,9 @@ class NetworkStack(Stack):
         self.vpc_name = construct_id
         self.construct_id = construct_id
         self.__create_vpc()
-        self.hosted_zone = route53.HostedZone(
-            self, "hosted_zone", zone_name="justadomain.xyz"
-        )
+        # self.hosted_zone = route53.HostedZone(
+        #     self, "hosted_zone", zone_name="justadomain.xyz"
+        # )
 
     def __create_vpc(self):
         self.vpc: ec2.Vpc = ec2.Vpc(
