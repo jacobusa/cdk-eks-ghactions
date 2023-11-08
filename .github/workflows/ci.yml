@@ -6,24 +6,144 @@ on:
       - main
 
 jobs:
-  set:
+  # set:
+  #   name: "🧪 Test app"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Get current date # get the date of the build
+  #       id: date
+  #       run: echo "$(date +'%Y-%m-%d--%M-%S')" >> tag-version.txt
+  #     - name: Publish Variables
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: tag-version
+  #         path: tag-version.txt
+
+  # get:
+  #   name: "🧪 Test app"
+  #   runs-on: ubuntu-latest
+  #   needs: set
+  #   steps:
+  #     - name: Download Artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: tag-version
+  #         path: artifacts
+  #     - name: Get current date # get the date of the build
+  #       id: date
+  #       run: |
+  #         TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
+  #         echo "$TAG_VERSION"
+  build:
     name: "🧪 Test app"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
     steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          make install
+      - name: Lint with pylint
+        run: |
+          make lint
+      - name: Test with pytest
+        run: |
+          make test
+  build-image-push:
+    name: "🛠️ Docker image"
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: | # log into docker hub account
+          docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }}
+
       - name: Get current date # get the date of the build
         id: date
-        run: echo "$(date +'%Y-%m-%d--%M-%S')" >> tag-version.txt
+        run: |
+          echo "TAG_VERSION=v$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
+
+      - name: Build the Docker image # push The image to the docker hub
+        run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:$TAG_VERSION
+
+      - name: Docker Push
+        run: docker push ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:$TAG_VERSION
+
+      - name: Export artifact
+        run: |
+          echo $TAG_VERSION >> tag-version.txt
+
       - name: Publish Variables
         uses: actions/upload-artifact@v3
         with:
           name: tag-version
           path: tag-version.txt
 
-  get:
-    name: "🧪 Test app"
+      # - name: Update k8s file
+      #   run: |
+      #     sed -i "s/weather-api:.*/weather-api:$TAG_VERSION/" manifests/flask.yaml
+
+  cdk:
+    name: "️🚀 Update infra"
     runs-on: ubuntu-latest
-    needs: set
+    strategy:
+      matrix:
+        python-version: [3.9]
+    needs: build-image-push
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Install and configure AWS CDK
+        run: |
+          npm install -g aws-cdk
+          cdk --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          make install-cdk-only
+
+      - name: Deploy EKS Cluster with CDK
+        run: |
+          export MASTERS_ROLE_NAME=${{ secrets.MASTERS_ROLE_NAME }}
+          export CLUSTER_NAME=${{ secrets.CLUSTER_NAME }}
+          export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          cdk bootstrap
+          cdk deploy vpc-stack --require-approval=never
+          cdk deploy cluster-stack --require-approval=never
+
+  manage-k8s:
+    name: "️🥃 Configure cluster"
+    runs-on: ubuntu-latest
+    needs: cdk
+    # outputs:
+    #   url: ${{ steps.step1.outputs.test }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
@@ -32,170 +152,72 @@ jobs:
       - name: Get current date # get the date of the build
         id: date
         run: |
-          ls
-          pwd
           TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
           echo "$TAG_VERSION"
-  # build:
-  #   name: "🧪 Test app"
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.9]
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #         cache: "pip"
-  #     - name: Install dependencies
-  #       run: |
-  #         make install
-  #     - name: Lint with pylint
-  #       run: |
-  #         make lint
-  #     - name: Test with pytest
-  #       run: |
-  #         make test
-  # build-image-push:
-  #   name: "🛠️ Docker image"
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
 
-  #     - name: Login to Docker Hub
-  #       run: | # log into docker hub account
-  #         docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Get current date # get the date of the build
-  #       id: date
-  #       run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
+      - name: Update kube config
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --role-arn arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.MASTERS_ROLE_NAME }}
 
-  #     - name: Build the Docker image # push The image to the docker hub
-  #       run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:${{ steps.date.outputs.date }}
+      - name: Update manifest files
+        run: |
+          TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
+          sed -i "s/weather-api:.*/weather-api:$TAG_VERSION/" manifests/flask.yaml
+          sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
+          sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
+          sed -i "s/<POSTGRES_DB>.*/${{ secrets.POSTGRES_DB }}/" manifests/postgres.yaml
+          sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
+          sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
 
-  #     - name: Docker Push
-  #       run: docker push ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:${{ steps.date.outputs.date }}
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          # version: '<version>' # default is latest (stable)
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+        id: install
 
-  #     - name: Update k8s file
-  #       run: |
-  #         sed -i "s/weather-api:.*/weather-api:${{ steps.date.outputs.date }}/" manifests/flask.yaml
+      - name: Install NGINX Controller
+        run: |
+          helm repo add ingress-nginx \
+            https://kubernetes.github.io/ingress-nginx
 
-  # cdk:
-  #   name: "️🚀 Update infra"
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.9]
-  #   needs: build-image-push
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+          helm repo update
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
-  #     - name: Install and configure AWS CDK
-  #       run: |
-  #         npm install -g aws-cdk
-  #         cdk --version
+          helm upgrade --install ingress-nginx ingress-nginx \
+            --repo https://kubernetes.github.io/ingress-nginx \
+            --namespace ingress-nginx \
+            --create-namespace \
+            --set-string controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
 
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
+      - name: Install cert manager
+        run: |
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+          helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager  --create-namespace --set installCRDs=true
+          kubectl apply -f manifests/cert-issuer-nginx.yaml
 
-  #     - name: Install dependencies
-  #       run: |
-  #         make install-cdk-only
+      - name: Install Prometheus
+        run: |
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+            --values manifests/prometheus-values.yaml \
+            --namespace monitoring \
+            --create-namespace \
+            --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
 
-  #     - name: Deploy EKS Cluster with CDK
-  #       run: |
-  #         export MASTERS_ROLE_NAME=${{ secrets.MASTERS_ROLE_NAME }}
-  #         export CLUSTER_NAME=${{ secrets.CLUSTER_NAME }}
-  #         export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
-  #         export AWS_REGION=${{ secrets.AWS_REGION }}
-  #         cdk bootstrap
-  #         cdk deploy vpc-stack --require-approval=never
-  #         cdk deploy cluster-stack --require-approval=never
-
-  # manage-k8s:
-  #   name: "️🥃 Configure cluster"
-  #   runs-on: ubuntu-latest
-  #   needs: cdk
-  #   # outputs:
-  #   #   url: ${{ steps.step1.outputs.test }}
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
-
-  #     - name: Update kube config
-  #       run: |
-  #         aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --role-arn arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.MASTERS_ROLE_NAME }}
-
-  #     - name: Update secrets file
-  #       run: |
-  #         sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DB>.*/${{ secrets.POSTGRES_DB }}/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
-
-  #     - name: Install Helm
-  #       uses: azure/setup-helm@v3
-  #       with:
-  #         # version: '<version>' # default is latest (stable)
-  #         token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
-  #       id: install
-
-  #     - name: Install NGINX Controller
-  #       run: |
-  #         helm repo add ingress-nginx \
-  #           https://kubernetes.github.io/ingress-nginx
-
-  #         helm repo update
-
-  #         helm upgrade --install ingress-nginx ingress-nginx \
-  #           --repo https://kubernetes.github.io/ingress-nginx \
-  #           --namespace ingress-nginx \
-  #           --create-namespace \
-  #           --set-string controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
-
-  #     - name: Install cert manager
-  #       run: |
-  #         helm repo add jetstack https://charts.jetstack.io
-  #         helm repo update
-  #         helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager  --create-namespace --set installCRDs=true
-  #         kubectl apply -f manifests/cert-issuer-nginx.yaml
-
-  #     - name: Install Prometheus
-  #       run: |
-  #         kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-  #         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  #         helm repo update
-  #         helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
-  #           --values manifests/prometheus-values.yaml \
-  #           --namespace monitoring \
-  #           --create-namespace \
-  #           --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
-
-  #     - name: Deploy postgres and flask to kubernetes
-  #       run: |
-  #         kubectl apply -f manifests/postgres.yaml
-  #         kubectl apply -f manifests/flask.yaml
+      - name: Deploy postgres and flask to kubernetes
+        run: |
+          kubectl apply -f manifests/postgres.yaml
+          kubectl apply -f manifests/flask.yaml
 
   # - name: Install NGINX controller
   #   run: |
