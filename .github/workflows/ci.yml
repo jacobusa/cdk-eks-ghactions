@@ -4,21 +4,21 @@ on:
   push:
     branches:
       - main
-env:
-  ACCOUNT_ID: ${{secrets.ACCOUNT_ID}}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  # AWS_REGION: ${{ secrets.AWS_REGION }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
-  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  DOCKER_USER: ${{ secrets.DOCKER_USER }}
-  MASTERS_ROLE_NAME: ${{ secrets.MASTERS_ROLE_NAME}}
-  OWM_API_KEY_BASE64: ${{ secrets.OWM_API_KEY_BASE64 }}
-  POSTGRES_DATABASE_URI_BASE64: ${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}
-  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  REPO_NAME: ${{ secrets.REPO_NAME }}
+# env:
+#   ACCOUNT_ID: ${{secrets.ACCOUNT_ID}}
+#   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#   AWS_REGION: ${{ secrets.AWS_REGION }}
+#   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#   CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+#   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+#   DOCKER_USER: ${{ secrets.DOCKER_USER }}
+#   MASTERS_ROLE_NAME: ${{ secrets.MASTERS_ROLE_NAME}}
+#   OWM_API_KEY_BASE64: ${{ secrets.OWM_API_KEY_BASE64 }}
+#   POSTGRES_DATABASE_URI_BASE64: ${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}
+#   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+#   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+#   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+#   REPO_NAME: ${{ secrets.REPO_NAME }}
 
 jobs:
   # build:
@@ -53,17 +53,17 @@ jobs:
 
   #     - name: Login to Docker Hub
   #       run: | # log into docker hub account
-  #         docker login -u $DOCKER_USER -p $DOCKER_TOKEN
+  #         docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }}
 
   #     - name: Get current date # get the date of the build
   #       id: date
   #       run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
 
   #     - name: Build the Docker image # push The image to the docker hub
-  #       run: docker build . --file Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+  #       run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:${{ steps.date.outputs.date }}
 
   #     - name: Docker Push
-  #       run: docker push $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+  #       run: docker push ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:${{ steps.date.outputs.date }}
 
   #     - name: Update k8s file
   #       run: |
@@ -80,8 +80,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Install and configure AWS CDK
         run: |
@@ -97,7 +97,7 @@ jobs:
       - name: Install dependencies
         run: |
           make install-cdk-only
-          cdk bootstrap aws://$ACCOUNT_ID/${{ secrets.AWS_REGION }} # Replace with your AWS account ID and desired region
+          cdk bootstrap aws://${{ secrets.ACCOUNT_ID }}/${{ secrets.AWS_REGION }} # Replace with your AWS account ID and desired region
 
       - name: Deploy EKS Cluster with CDK
         run: |
@@ -123,21 +123,21 @@ jobs:
   #     - name: Configure AWS Credentials
   #       uses: aws-actions/configure-aws-credentials@v1
   #       with:
-  #         aws-access-key-id: $AWS_ACCESS_KEY_ID
-  #         aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   #         aws-region: ${{ secrets.AWS_REGION }}
 
   #     - name: Update kube config
   #       run: |
-  #         aws eks update-kubeconfig --name $CLUSTER_NAME --region ${{ secrets.AWS_REGION }} --role-arn arn:aws:iam::$ACCOUNT_ID:role/$MASTERS_ROLE_NAME
+  #         aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --role-arn arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.MASTERS_ROLE_NAME }}
 
   #     - name: Update secrets file
   #       run: |
-  #         sed -i "s/<OWM_API_KEY>.*/$OWM_API_KEY_BASE64/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DATABASE_URI>.*/$POSTGRES_DATABASE_URI_BASE64/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DB>.*/$POSTGRES_DB/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_USER>.*/$POSTGRES_USER/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_PASSWORD>.*/$POSTGRES_PASSWORD/" manifests/postgres.yaml
+  #         sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
+  #         sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
+  #         sed -i "s/<POSTGRES_DB>.*/${{ secreta.POSTGRES_DB }}/" manifests/postgres.yaml
+  #         sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
+  #         sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
 
   #     - name: Install Helm
   #       uses: azure/setup-helm@v3
