@@ -71,7 +71,7 @@ jobs:
       - name: Get current date # get the date of the build
         id: date
         run: |
-          echo "TAG_VERSION=v$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
 
       - name: Build the Docker image # push The image to the docker hub
         run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:$TAG_VERSION
@@ -149,11 +149,6 @@ jobs:
         with:
           name: tag-version
           path: artifacts
-      - name: Get current date # get the date of the build
-        id: date
-        run: |
-          TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
-          echo "$TAG_VERSION"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
