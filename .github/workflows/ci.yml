@@ -7,18 +7,18 @@ on:
 env:
   ACCOUNT_ID: ${{secrets.ACCOUNT_ID}}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_REGION: ${{secrets.AWS_REGION}}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
-  DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
-  DOCKER_USER: ${{secrets.DOCKER_USER}}
-  MASTERS_ROLE_NAME: ${{secrets.MASTERS_ROLE_NAME}}
-  OWM_API_KEY_BASE64: ${{secrets.OWM_API_KEY_BASE64}}
-  POSTGRES_DATABASE_URI_BASE64: ${{secrets.POSTGRES_DATABASE_URI_BASE64}}
-  POSTGRES_DB: ${{secrets.POSTGRES_DB}}
-  POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
-  POSTGRES_USER: ${{secrets.POSTGRES_USER}}
-  REPO_NAME: ${{secrets.REPO_NAME}}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+  MASTERS_ROLE_NAME: ${{ secrets.MASTERS_ROLE_NAME}}
+  OWM_API_KEY_BASE64: ${{ secrets.OWM_API_KEY_BASE64 }}
+  POSTGRES_DATABASE_URI_BASE64: ${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  REPO_NAME: ${{ secrets.REPO_NAME }}
 
 jobs:
   # build:
@@ -104,11 +104,11 @@ jobs:
           cdk deploy vpc-stack --require-approval=never
           cdk deploy cluster-stack --require-approval=never
 
-      - name: Cleanup
-        run: |
-          aws configure unset aws_access_key_id
-          aws configure unset aws_secret_access_key
-        if: always()
+      # - name: Cleanup
+      #   run: |
+      #     aws configure unset aws_access_key_id
+      #     aws configure unset aws_secret_access_key
+      #   if: always()
 
   # manage-k8s:
   #   name: "️🥃 Configure k8s cluster"
