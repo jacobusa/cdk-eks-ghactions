@@ -168,6 +168,24 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
         id: install
 
+      - name: Install Prometheus
+        run: |
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+            --values manifests/prometheus-values.yaml \
+            --namespace monitoring \
+            --create-namespace \
+            --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
+
+      - name: Install cert manager
+        run: |
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+          helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager  --create-namespace --set installCRDs=true
+          kubectl apply -f manifests/cert-issuer-nginx.yaml
+
       - name: Install NGINX Controller
         run: |
           helm repo add ingress-nginx \
@@ -189,24 +207,6 @@ jobs:
             --set prometheus.serviceMonitor.endpoints='{port: "prometheus"}' \
             --set-string controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
           kubectl apply -f manifests/nginx-service-monitor.yaml
-
-      - name: Install cert manager
-        run: |
-          helm repo add jetstack https://charts.jetstack.io
-          helm repo update
-          helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager  --create-namespace --set installCRDs=true
-          kubectl apply -f manifests/cert-issuer-nginx.yaml
-
-      - name: Install Prometheus
-        run: |
-          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo update
-          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
-            --values manifests/prometheus-values.yaml \
-            --namespace monitoring \
-            --create-namespace \
-            --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
           kubectl apply -f manifests/monitoring-ingress.yaml
 
       - name: Deploy postgres and flask to kubernetes
