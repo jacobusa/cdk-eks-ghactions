@@ -13,6 +13,24 @@ jobs:
       - name: Get current date # get the date of the build
         id: date
         run: echo "TAG_VERSION=$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
+      - name: Get current date # get the date of the build
+        id: date
+        run: echo "$TAG_VERSION"
+      - name: Get current date2 # get the date of the build
+        id: date2
+        run: echo $TAG_VERSION
+      - name: Get current date3 # get the date of the build
+        id: date3
+        run: echo '$TAG_VERSION'
+      - name: Get current date4 # get the date of the build
+        id: date4
+        run: echo ${{ env.TAG_VERSION }}
+      - name: Get current date5 # get the date of the build
+        id: date5
+        run: echo '${{ env.TAG_VERSION }}'
+      - name: Get current date6 # get the date of the build
+        id: date6
+        run: echo "${{ env.TAG_VERSION }}"
   get:
     name: "🧪 Test app"
     runs-on: ubuntu-latest
