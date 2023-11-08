@@ -106,10 +106,11 @@ jobs:
           npm install -g aws-cdk
           cdk --version
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.9
+        # - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.9
 
       - name: Install dependencies
         run: |
@@ -266,6 +267,8 @@ jobs:
       - name: Update manifest files
         run: |
           NLB_DOMAIN=$(cat artifacts/nlb-domain.txt | sed 's/\"//g')
+          export MASTERS_ROLE_NAME=${{ secrets.MASTERS_ROLE_NAME }}
+          export CLUSTER_NAME=${{ secrets.CLUSTER_NAME }}
           export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
           export AWS_REGION=${{ secrets.AWS_REGION }}
           cdk bootstrap
