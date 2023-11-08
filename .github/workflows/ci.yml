@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Get current date # get the date of the build
         id: date
-        run: echo "::set-env name=TAG_VERSION::$(date +'%Y-%m-%d--%M-%S')"
+        run: echo "TAG_VERSION=v$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
   get:
     name: "🧪 Test app"
     runs-on: ubuntu-latest
