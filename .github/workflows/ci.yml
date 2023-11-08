@@ -14,10 +14,10 @@ jobs:
         id: date
         run: echo "$(date +'%Y-%m-%d--%M-%S')" >> tag-version.txt
       - name: Publish Variables
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tag-version
-          path: tag-version.txt
+          path: artifacts/tag-version.txt
 
   get:
     name: "🧪 Test app"
@@ -25,13 +25,15 @@ jobs:
     needs: set
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: tag-version
-          path: artifacts
+          path: artifacts/tag-version.txt
       - name: Get current date # get the date of the build
         id: date
         run: |
+          ls
+          pwd
           TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
           echo "$TAG_VERSION"
   # build:
