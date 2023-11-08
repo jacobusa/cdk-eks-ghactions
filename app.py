@@ -15,14 +15,14 @@ app = App()
 #     app,
 #     "cdk-eks-ghactions-stack",
 #     env=cdk.Environment(
-#         account=os.getenv("AWS_ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
+#         account=os.getenv("ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
 #     ),
 # )
 vpc_stack = NetworkStack(
     app,
     "vpc-stack",
     env=Environment(
-        account=os.getenv("AWS_ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
+        account=os.getenv("ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
     ),
 )
 
@@ -31,7 +31,7 @@ cluster_stack = ClusterStack(
     "cluster-stack",
     vpc_stack,
     env=Environment(
-        account=os.getenv("AWS_ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
+        account=os.getenv("ACCOUNT_ID"), region=os.environ.get("AWS_REGION")
     ),
 )
 

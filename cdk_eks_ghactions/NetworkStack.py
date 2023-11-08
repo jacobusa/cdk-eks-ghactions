@@ -2,8 +2,6 @@ from aws_cdk import (
     Stack,
     aws_ec2 as ec2,
     aws_route53 as route53,
-    aws_elasticloadbalancingv2 as elbv2,
-    aws_route53_targets as route53_targets,
 )
 from constructs import Construct
 
