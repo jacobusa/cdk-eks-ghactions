@@ -87,6 +87,7 @@ spec:
     app: postgres
   ports:
     - port: 5432
+      name: web
   type: ClusterIP
 
 ---
@@ -101,3 +102,52 @@ data:
   POSTGRES_DB: <POSTGRES_DB>
   POSTGRES_USER: <POSTGRES_USER>
   POSTGRES_PASSWORD: <POSTGRES_PASSWORD>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg-exporter
+  template:
+    metadata:
+      labels:
+        app: pg-exporter
+    spec:
+      containers:
+        - name: pg-exporter
+          image: wrouesnel/postgres_exporter
+          ports:
+            - containerPort: 9187
+          env:
+            - name: DATA_SOURCE_NAME
+              value: "user=<POSTGRES_USER> host=postgres-service.default dbname=<POSTGRES_DB> sslmode=disable password=<POSTGRES_PASSWORD>"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg-exporter-service
+spec:
+  selector:
+    app: pg-exporter
+  ports:
+    - name: web
+      port: 9187
+      targetPort: 9187
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: postgres-exporter
+  labels:
+    prometheus: devops
+spec:
+  selector:
+    matchLabels:
+      app: pg-exporter
+  endpoints:
+    - port: web
+      path: /metrics

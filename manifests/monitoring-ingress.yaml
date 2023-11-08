@@ -2,17 +2,49 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: grafana-ingress
-  # namespace: monitoring
-  # annotations:
-  #   acme.cert-manager.io/http01-edit-in-place: "true"
+  name: prometheus-ingress
+  namespace: monitoring
 spec:
   tls:
     - hosts:
-        # - grafana.justadomain.xyz
+        - prometheus.justadomain.xyz
+      secretName: prometheus-app-tls
+  ingressClassName: nginx
+  rules:
+    - host: prometheus.justadomain.xyz
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: prometheus-kube-prometheus-prometheus
+                port:
+                  number: 9090
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  dnsNames:
+    - prometheus.justadomain.xyz
+  secretName: prometheus-app-tls
+  issuerRef:
+    name: letsencrypt-cluster-issuer
+    kind: ClusterIssuer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+spec:
+  tls:
+    - hosts:
         - grafana.justadomain.xyz
       secretName: grafana-app-tls
-
   ingressClassName: nginx
   rules:
     - host: grafana.justadomain.xyz
@@ -25,27 +57,15 @@ spec:
                 name: prometheus-grafana
                 port:
                   number: 80
-    # - host: grafana.justadomain.xyz
-    #   http:
-    #     paths:
-    #       - pathType: Prefix
-    #         path: /
-    #         backend:
-    #           service:
-    #             name: prometheus-grafana
-    #             port:
-    #               number: 80
-
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: grafana
-  # namespace: monitoring
+  namespace: monitoring
 spec:
   dnsNames:
     - grafana.justadomain.xyz
-    # - grafana.justadomain.xyz
   secretName: grafana-app-tls
   issuerRef:
     name: letsencrypt-cluster-issuer

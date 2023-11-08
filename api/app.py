@@ -50,7 +50,7 @@ def add_favorite(city: str):
     return render_template("index.html", favorites=favoritesFromDb)
 
 
-@app.route("/delete-favorite/<favoriteiid>", methods=["POST"])
+@app.route("/delete-favorite/<favoriteid>", methods=["POST"])
 def delete_favorite(favoriteid: str):
     deleteSession = Weather.query.filter(Weather.id == favoriteid).one()
     db.session.delete(deleteSession)

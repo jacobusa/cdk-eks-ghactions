@@ -6,56 +6,28 @@ on:
       - main
 
 jobs:
-  # set:
-  #   name: "🧪 Test app"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Get current date # get the date of the build
-  #       id: date
-  #       run: echo "$(date +'%Y-%m-%d--%M-%S')" >> tag-version.txt
-  #     - name: Publish Variables
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: tag-version
-  #         path: tag-version.txt
-
-  # get:
-  #   name: "🧪 Test app"
-  #   runs-on: ubuntu-latest
-  #   needs: set
-  #   steps:
-  #     - name: Download Artifacts
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: tag-version
-  #         path: artifacts
-  #     - name: Get current date # get the date of the build
-  #       id: date
-  #       run: |
-  #         TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
-  #         echo "$TAG_VERSION"
-  # build:
-  #   name: "🧪 Test app"
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.9]
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #         cache: "pip"
-  #     - name: Install dependencies
-  #       run: |
-  #         make install
-  #     - name: Lint with pylint
-  #       run: |
-  #         make lint
-  #     - name: Test with pytest
-  #       run: |
-  #         make test
+  build:
+    name: "🧪 Test app"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          make install
+      - name: Lint with pylint
+        run: |
+          make lint
+      - name: Test with pytest
+        run: |
+          make test
   build-image-push:
     name: "🛠️ Docker image"
     runs-on: ubuntu-latest
@@ -187,6 +159,7 @@ jobs:
           sed -i "s/<POSTGRES_DB>.*/${{ secrets.POSTGRES_DB }}/" manifests/postgres.yaml
           sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
           sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
+          sed -i "s/<GRAFANA_PASSWORD>.*/${{ secrets.GRAFANA_PASSWORD }}/" manifests/prometheus-values.yaml
 
       - name: Install Helm
         uses: azure/setup-helm@v3
@@ -204,7 +177,18 @@ jobs:
             --repo https://kubernetes.github.io/ingress-nginx \
             --namespace ingress-nginx \
             --create-namespace \
+            --set controller.metrics.enabled=true \
+            --set prometheus.create=true \
+            --set prometheus.port=9113 \
+            --set prometheus.scheme=http \
+            --set prometheus.service.create=true \
+            --set prometheus.service.labels='{prometheus: "devops"}' \
+            --set prometheus.serviceMonitor.create=true \
+            --set prometheus.serviceMonitor.labels='{prometheus: "devops"}' \
+            --set prometheus.serviceMonitor.selectorMatchLabels='{prometheus: "devops"}' \
+            --set prometheus.serviceMonitor.endpoints='{port: "prometheus"}' \
             --set-string controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+          kubectl apply -f manifests/nginx-service-monitor.yaml
 
       - name: Install cert manager
         run: |
@@ -223,6 +207,7 @@ jobs:
             --namespace monitoring \
             --create-namespace \
             --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
+          kubectl apply -f manifests/monitoring-ingress.yaml
 
       - name: Deploy postgres and flask to kubernetes
         run: |

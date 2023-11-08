@@ -54,9 +54,12 @@ metadata:
   # labels:
   #   app: weather-api
   name: flask-service
+  annotations:
+    app.kubernetes.io/instance: flask-service
 spec:
   ports:
-    - port: 8080
+    - name: web
+      port: 8080
       targetPort: 8080
   selector:
     app: flask
@@ -101,3 +104,19 @@ spec:
   issuerRef:
     name: letsencrypt-cluster-issuer
     kind: ClusterIssuer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flask-app-monitor
+  labels:
+    prometheus: devops
+spec:
+  selector:
+    matchLabels:
+      app: flask
+  endpoints:
+    - port: web
+      path: /metrics
+      interval: 60s
+      scrapeTimeout: 30s
