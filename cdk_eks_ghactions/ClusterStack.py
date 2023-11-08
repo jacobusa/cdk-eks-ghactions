@@ -54,9 +54,9 @@ class ClusterStack(Stack):
             default_capacity=1,
             # kubectl_layer=KubectlV24Layer(self, "KubectlV24Layer"),
             output_masters_role_arn=True,
-            default_capacity_instance=ec2.InstanceType.of(
-                ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM
-            ),
+            # default_capacity_instance=ec2.InstanceType.of(
+            #     ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM
+            # ),
             endpoint_access=eks.EndpointAccess.PUBLIC_AND_PRIVATE,
             cluster_logging=[
                 eks.ClusterLoggingTypes.API,
