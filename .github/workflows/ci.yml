@@ -120,7 +120,7 @@ jobs:
         run: |
           sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
           sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
-          sed -i "s/<POSTGRES_DB>.*/${{ secreta.POSTGRES_DB }}/" manifests/postgres.yaml
+          sed -i "s/<POSTGRES_DB>.*/${{ secrets.POSTGRES_DB }}/" manifests/postgres.yaml
           sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
           sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
 
