@@ -28,7 +28,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: tag-version
-          path: artifacts/tag-version.txt
+          path: tag-version.txt
       - name: Get current date # get the date of the build
         id: date
         run: |
