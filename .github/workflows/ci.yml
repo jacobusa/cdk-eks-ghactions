@@ -214,6 +214,58 @@ jobs:
           kubectl apply -f manifests/postgres.yaml
           kubectl apply -f manifests/flask.yaml
 
+      - name: Export artifact
+        run: |
+          export NLB_DOMAIN=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo $NLB_DOMAIN >> nlb-domain.txt
+
+      - name: Publish Variables
+        uses: actions/upload-artifact@v3
+        with:
+          name: nlb-domain
+          path: nlb-domain.txt
+
+  deploy-route-stack:
+    name: "️🚏 deploy routes"
+    runs-on: ubuntu-latest
+    needs: manage-k8s
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: nlb-domain
+          path: artifacts
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install and configure AWS CDK
+        run: |
+          npm install -g aws-cdk
+          cdk --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          make install-cdk-only
+
+      - name: Update manifest files
+        run: |
+          NLB_DOMAIN=$(cat artifacts/nlb-domain.txt | sed 's/\"//g')
+          cdk bootstrap
+          cdk deploy route-stack --parameters nlb_domain=$NLB_DOMAIN --require-approval=never
+
   # - name: Install NGINX controller
   #   run: |
   #   # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090

@@ -2,6 +2,7 @@ from aws_cdk import (
     Stack,
     aws_ec2 as ec2,
     aws_route53 as route53,
+    aws_route53_targets as route53_targets,
 )
 from constructs import Construct
 
@@ -40,15 +41,4 @@ class NetworkStack(Stack):
                 #     cidr_mask=20,
                 # ),
             ],
-            # nat_gateways=1,
         )
-
-        # self.alb = elbv2.ApplicationLoadBalancer(self, "alb", vpc=self.vpc)
-        # route53.ARecord(
-        #     self,
-        #     "a-record",
-        #     zone=self.hosted_zone,
-        #     target=route53.RecordTarget.from_alias(
-        #         route53_targets.LoadBalancerTarget(self.alb)
-        #     ),
-        # )
