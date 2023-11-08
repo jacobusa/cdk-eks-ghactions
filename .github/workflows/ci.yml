@@ -17,7 +17,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tag-version
-          path: tag-version.txt
+          path: artifacts
 
   get:
     name: "🧪 Test app"
@@ -28,7 +28,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: tag-version
-          path: artifacts/tag-version.txt
+          path: artifacts
       - name: Get current date # get the date of the build
         id: date
         run: |
