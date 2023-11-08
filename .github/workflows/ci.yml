@@ -76,7 +76,7 @@ jobs:
       - name: Get current date # get the date of the build
         id: date1
         run: |
-          echo "$TAG_VERSION""
+          echo "$TAG_VERSION"
           echo ${{ env.TAG_VERSION }}
 
       - name: Set up Docker Buildx
