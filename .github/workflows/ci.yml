@@ -52,8 +52,7 @@ jobs:
 
       - name: Update k8s file
         run: |
-          echo "$DOCKER_TAG_VERSION"
-          sed -i "s/weather-api:.*/weather-api:$DOCKER_TAG_VERSION/" manifests/flask.yaml
+          sed -i "s/weather-api:.*/weather-api:${{ steps.date.outputs.date }}/" manifests/flask.yaml
 
   # cdk:
   #   name: "️🚀 Update infrastructure"
