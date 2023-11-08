@@ -272,7 +272,7 @@ jobs:
           export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
           export AWS_REGION=${{ secrets.AWS_REGION }}
           cdk bootstrap
-          cdk deploy route-stack --parameters nlb_domain=$NLB_DOMAIN --require-approval=never
+          cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN --require-approval=never
 
   # - name: Install NGINX controller
   #   run: |

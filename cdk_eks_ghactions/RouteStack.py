@@ -11,7 +11,7 @@ class RouteStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
         nlb_domain = CfnParameter(
             self,
-            "nlb_domain",
+            "nlbDomain",
             type="String",
             description="The name of the load balancer where cname records need to be made.",
             default="",
