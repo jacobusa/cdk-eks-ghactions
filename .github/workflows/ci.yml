@@ -12,48 +12,28 @@ jobs:
     steps:
       - name: Get current date # get the date of the build
         id: date
-        run: echo "TAG_VERSION=$(date +'%Y-%m-%d--%M-%S')" >> $GITHUB_ENV
-      - name: Get current date # get the date of the build
-        id: date1
-        run: echo "$TAG_VERSION"
-      - name: Get current date2 # get the date of the build
-        id: date2
-        run: echo $TAG_VERSION
-      - name: Get current date3 # get the date of the build
-        id: date3
-        run: echo '$TAG_VERSION'
-      - name: Get current date4 # get the date of the build
-        id: date4
-        run: echo ${{ env.TAG_VERSION }}
-      - name: Get current date5 # get the date of the build
-        id: date5
-        run: echo '${{ env.TAG_VERSION }}'
-      - name: Get current date6 # get the date of the build
-        id: date6
-        run: echo "${{ env.TAG_VERSION }}"
+        run: echo "$(date +'%Y-%m-%d--%M-%S')" >> tag-version.txt
+      - name: Publish Variables
+        uses: actions/upload-artifact@v2
+        with:
+          name: tag-version
+          path: tag-version.txt
+
   get:
     name: "🧪 Test app"
     runs-on: ubuntu-latest
     needs: set
     steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: tag-version
+          path: artifacts
       - name: Get current date # get the date of the build
         id: date
-        run: echo "$TAG_VERSION"
-      - name: Get current date2 # get the date of the build
-        id: date2
-        run: echo $TAG_VERSION
-      - name: Get current date3 # get the date of the build
-        id: date3
-        run: echo '$TAG_VERSION'
-      - name: Get current date4 # get the date of the build
-        id: date4
-        run: echo ${{ env.TAG_VERSION }}
-      - name: Get current date5 # get the date of the build
-        id: date5
-        run: echo '${{ env.TAG_VERSION }}'
-      - name: Get current date6 # get the date of the build
-        id: date6
-        run: echo "${{ env.TAG_VERSION }}"
+        run: |
+          source artifacts/tag-version.txt
+          echo "$TAG_VERSION"
   # build:
   #   name: "🧪 Test app"
   #   runs-on: ubuntu-latest
