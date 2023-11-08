@@ -7,7 +7,7 @@ on:
 env:
   ACCOUNT_ID: ${{secrets.ACCOUNT_ID}}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_REGION_TO_DEPLOY: ${{ secrets.AWS_REGION_TO_DEPLOY }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
@@ -76,17 +76,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: testing
-        run: |
-          echo $AWS_REGION
-          echo $ACCOUNT_ID
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: $AWS_ACCESS_KEY_ID
           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          aws-region: $AWS_REGION
+          aws-region: $AWS_REGION_TO_DEPLOY
       - name: Install and configure AWS CDK
         run: |
           npm install -g aws-cdk
@@ -101,7 +97,7 @@ jobs:
       - name: Install dependencies
         run: |
           make install-cdk-only
-          cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION # Replace with your AWS account ID and desired region
+          cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION_TO_DEPLOY # Replace with your AWS account ID and desired region
 
       - name: Deploy EKS Cluster with CDK
         run: |
@@ -129,11 +125,11 @@ jobs:
   #       with:
   #         aws-access-key-id: $AWS_ACCESS_KEY_ID
   #         aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-  #         aws-region: $AWS_REGION
+  #         aws-region: $AWS_REGION_TO_DEPLOY
 
   #     - name: Update kube config
   #       run: |
-  #         aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --role-arn arn:aws:iam::$ACCOUNT_ID:role/$MASTERS_ROLE_NAME
+  #         aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION_TO_DEPLOY --role-arn arn:aws:iam::$ACCOUNT_ID:role/$MASTERS_ROLE_NAME
 
   #     - name: Update secrets file
   #       run: |
