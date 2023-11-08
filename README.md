@@ -6,12 +6,12 @@ Fully automated one click deploy of a microservice using cdk and github actions 
 
 <br>
 
-**_MANUAL STEP_:** The only bootstrapping that is not automated is the manual change of nameservers from your domain registrar to the cdk created hosted zone in route53. Once you run the pipeline once, change the nameservers in your registrar to the route53 name servers and then wait until the app is running at app.<DOMAIN>.com, grafana.<DOMAIN>.com, and prometheus.<DOMAIN>.com.
+> **_MANUAL STEP_:** The only bootstrapping that is not automated is the manual change of nameservers from your domain registrar to the cdk created hosted zone in route53. Once you run the pipeline once, change the nameservers in your registrar to the route53 name servers and then wait until the app is running at app.DOMAIN.com, grafana.DOMAIN.com, and prometheus.DOMAIN.com.
 
 <br>
 
-**_GITHUB ACTIONS:_** Before you run the github actions pipeline, be sure to enter the variables in the .env.example file into github actions secrets.
-<br>
+> **_GITHUB ACTIONS:_** Before you run the github actions pipeline, be sure to enter the variables in the .env.example file into github actions secrets.
+> <br>
 
 ## Tools
 
@@ -55,7 +55,9 @@ cdk deploy cluster-stack
 # Must have the nginx load balancer already deployed in the kubernetes cluster and it's dns name available as env NLB_DOMAIN
 # To obtain the dns name of the nginx load balancer, run
 # kubectl get svc ingress-nginx-controller -n ingress-nginx -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN
+# Also must pass in the domain you want to deploy to hosted zone
+export DOMAIN=<DOMAIN>
+cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN --parameters route-stack:appDomain=$DOMAIN
 ```
 
 ## Global Teardown

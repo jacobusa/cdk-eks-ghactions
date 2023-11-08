@@ -11,6 +11,13 @@ from cdk_eks_ghactions.ClusterStack import ClusterStack
 class RouteStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+        app_domain = CfnParameter(
+            self,
+            "appDomain",
+            type="String",
+            description="The name of the hosted zone domain to be created.",
+            default="",
+        )
         nlb_domain = CfnParameter(
             self,
             "nlbDomain",
@@ -20,7 +27,7 @@ class RouteStack(Stack):
         )
         # Create a hosted zone
         hosted_zone = route53.HostedZone(
-            self, "hosted-zone", zone_name="justadomain.xyz"
+            self, "hosted-zone", zone_name=app_domain.value_as_string
         )
 
         # lbDnsName = cluster_stack.cluster.get_ingress_load_balancer_address(

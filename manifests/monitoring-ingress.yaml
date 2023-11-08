@@ -7,11 +7,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - prometheus.justadomain.xyz
+        - prometheus.<DOMAIN>
       secretName: prometheus-app-tls
   ingressClassName: nginx
   rules:
-    - host: prometheus.justadomain.xyz
+    - host: prometheus.<DOMAIN>
       http:
         paths:
           - pathType: Prefix
@@ -29,7 +29,7 @@ metadata:
   namespace: monitoring
 spec:
   dnsNames:
-    - prometheus.justadomain.xyz
+    - prometheus.<DOMAIN>
   secretName: prometheus-app-tls
   issuerRef:
     name: letsencrypt-cluster-issuer
@@ -43,11 +43,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - grafana.justadomain.xyz
+        - grafana.<DOMAIN>
       secretName: grafana-app-tls
   ingressClassName: nginx
   rules:
-    - host: grafana.justadomain.xyz
+    - host: grafana.<DOMAIN>
       http:
         paths:
           - pathType: Prefix
@@ -65,7 +65,7 @@ metadata:
   namespace: monitoring
 spec:
   dnsNames:
-    - grafana.justadomain.xyz
+    - grafana.<DOMAIN>
   secretName: grafana-app-tls
   issuerRef:
     name: letsencrypt-cluster-issuer

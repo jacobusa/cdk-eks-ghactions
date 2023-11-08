@@ -75,12 +75,12 @@ metadata:
 spec:
   tls:
     - hosts:
-        - app.justadomain.xyz
+        - app.<DOMAIN>
       secretName: flask-app-tls
 
   ingressClassName: nginx
   rules:
-    - host: app.justadomain.xyz
+    - host: app.<DOMAIN>
       http:
         paths:
           - pathType: Prefix
@@ -99,7 +99,7 @@ metadata:
   namespace: default
 spec:
   dnsNames:
-    - app.justadomain.xyz
+    - app.<DOMAIN>
   secretName: flask-app-tls
   issuerRef:
     name: letsencrypt-cluster-issuer

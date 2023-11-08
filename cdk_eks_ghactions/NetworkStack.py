@@ -11,9 +11,6 @@ class NetworkStack(Stack):
         self.vpc_name = construct_id
         self.construct_id = construct_id
         self.__create_vpc()
-        # self.hosted_zone = route53.HostedZone(
-        #     self, "hosted_zone", zone_name="justadomain.xyz"
-        # )
 
     def __create_vpc(self):
         self.vpc: ec2.Vpc = ec2.Vpc(

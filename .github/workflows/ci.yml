@@ -158,6 +158,8 @@ jobs:
           TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
           sed -i "s/weather-api:.*/weather-api:$TAG_VERSION/" manifests/flask.yaml
           sed -i "s/<OWM_API_KEY>/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
+          sed -i "s/<DOMAIN>/${{ secrets.DOMAIN }}/" manifests/flask.yaml
+          sed -i "s/<DOMAIN>/${{ secrets.DOMAIN }}/" manifests/monitoring-ingress.yaml
           sed -i "s/<POSTGRES_DATABASE_URI>/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
           sed -i "s/<POSTGRES_DB>/${{ secrets.POSTGRES_DB }}/" manifests/postgres.yaml
           sed -i "s/<POSTGRES_USER>/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
@@ -272,7 +274,7 @@ jobs:
           export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
           export AWS_REGION=${{ secrets.AWS_REGION }}
           cdk bootstrap
-          cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN --require-approval=never
+          cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN --parameters route-stack:appDomain=${{ secrets.DOMAIN }} --require-approval=never
 
   # - name: Install NGINX controller
   #   run: |
