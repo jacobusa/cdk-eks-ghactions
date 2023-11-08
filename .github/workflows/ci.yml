@@ -61,13 +61,6 @@ jobs:
       matrix:
         python-version: [3.9]
     needs: build-image-push
-    env:
-      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      MASTERS_ROLE_NAME: ${{ secrets.MASTERS_ROLE_NAME }}
-      CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -75,9 +68,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          aws-region: $AWS_REGION
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: Install and configure AWS CDK
         run: |
           npm install -g aws-cdk
@@ -93,20 +86,15 @@ jobs:
         run: |
           make install-cdk-only
 
-      - name: CDK bootstrap
-        run: |
-          cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION # Replace with your AWS account ID and desired region
-
       - name: Deploy EKS Cluster with CDK
         run: |
+          export MASTERS_ROLE_NAME=${{ secrets.MASTERS_ROLE_NAME }}
+          export CLUSTER_NAME=${{ secrets.CLUSTER_NAME }}
+          export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          cdk bootstrap
           cdk deploy vpc-stack --require-approval=never
           cdk deploy cluster-stack --require-approval=never
-
-      - name: Cleanup
-        run: |
-          aws configure unset aws_access_key_id
-          aws configure unset aws_secret_access_key
-        if: always()
 
   manage-k8s:
     name: "️🥃 Configure cluster"
@@ -183,12 +171,6 @@ jobs:
       # - name: Install NGINX controller
       #   run: |
       #   # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
-
-      - name: Cleanup
-        run: |
-          aws configure unset aws_access_key_id
-          aws configure unset aws_secret_access_key
-        if: always()
 
   #     --set controller.ingressClassResource.name="ingress-nginx"
   #     --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-type="external"
