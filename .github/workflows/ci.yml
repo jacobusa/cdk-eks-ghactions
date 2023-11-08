@@ -86,7 +86,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:$TAG_VERSION
+          tags: "${{ secrets.DOCKER_USER }}/${{ secrets.REPO_NAME }}:$TAG_VERSION"
           cache-from: type=registry,ref=user/app:latest
           cache-to: type=inline
 
