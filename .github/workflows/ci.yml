@@ -27,6 +27,15 @@ jobs:
       - name: Get current date3 # get the date of the build
         id: date3
         run: echo '$TAG_VERSION'
+      - name: Get current date4 # get the date of the build
+        id: date4
+        run: echo ${{ env.TAG_VERSION }}
+      - name: Get current date5 # get the date of the build
+        id: date5
+        run: echo '${{ env.TAG_VERSION }}'
+      - name: Get current date6 # get the date of the build
+        id: date6
+        run: echo "${{ env.TAG_VERSION }}"
   # build:
   #   name: "🧪 Test app"
   #   runs-on: ubuntu-latest
