@@ -22,10 +22,10 @@ jobs:
         id: date
         run: echo "$TAG_VERSION"
       - name: Get current date2 # get the date of the build
-        id: date
+        id: date2
         run: echo $TAG_VERSION
       - name: Get current date3 # get the date of the build
-        id: date
+        id: date3
         run: echo '$TAG_VERSION'
   # build:
   #   name: "🧪 Test app"
