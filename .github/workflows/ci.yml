@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: "🧪 Test application"
+    name: "🧪 Test app"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,7 +29,7 @@ jobs:
         run: |
           make test
   build-image-push:
-    name: "🛠️ Build and push docker image"
+    name: "🛠️ Docker image"
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -54,134 +54,134 @@ jobs:
         run: |
           sed -i "s/weather-api:.*/weather-api:${{ steps.date.outputs.date }}/" manifests/flask.yaml
 
-  # cdk:
-  #   name: "️🚀 Update infrastructure"
-  #   runs-on: ubuntu-latest
-  #   needs: build-image-push
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+  cdk:
+    name: "️🚀 Update infra"
+    runs-on: ubuntu-latest
+    needs: build-image-push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
-  #     - name: Install and configure AWS CDK
-  #       run: |
-  #         npm install -g aws-cdk
-  #         cdk --version
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Install and configure AWS CDK
+        run: |
+          npm install -g aws-cdk
+          cdk --version
 
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #         cache: "cdk-pip"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "cdk-pip"
 
-  #     - name: Install dependencies
-  #       run: |
-  #         make install-cdk-only
-  #         cdk bootstrap aws://${{ secrets.ACCOUNT_ID }}/${{ secrets.AWS_REGION }} # Replace with your AWS account ID and desired region
+      - name: Install dependencies
+        run: |
+          make install-cdk-only
+          cdk bootstrap aws://${{ secrets.ACCOUNT_ID }}/${{ secrets.AWS_REGION }} # Replace with your AWS account ID and desired region
 
-  #     - name: Deploy EKS Cluster with CDK
-  #       run: |
-  #         cdk deploy vpc-stack --require-approval=never
-  #         cdk deploy cluster-stack --require-approval=never
+      - name: Deploy EKS Cluster with CDK
+        run: |
+          cdk deploy vpc-stack --require-approval=never
+          cdk deploy cluster-stack --require-approval=never
 
-  #     - name: Cleanup
-  #       run: |
-  #         aws configure unset aws_access_key_id
-  #         aws configure unset aws_secret_access_key
-  #       if: always()
+      - name: Cleanup
+        run: |
+          aws configure unset aws_access_key_id
+          aws configure unset aws_secret_access_key
+        if: always()
 
-  # manage-k8s:
-  #   name: "️🥃 Configure k8s cluster"
-  #   runs-on: ubuntu-latest
-  #   needs: cdk
-  #   # outputs:
-  #   #   url: ${{ steps.step1.outputs.test }}
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+  manage-k8s:
+    name: "️🥃 Configure cluster"
+    runs-on: ubuntu-latest
+    needs: cdk
+    # outputs:
+    #   url: ${{ steps.step1.outputs.test }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Update kube config
-  #       run: |
-  #         aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --role-arn arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.MASTERS_ROLE_NAME }}
+      - name: Update kube config
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }} --role-arn arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.MASTERS_ROLE_NAME }}
 
-  #     - name: Update secrets file
-  #       run: |
-  #         sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
-  #         sed -i "s/<POSTGRES_DB>.*/${{ secreta.POSTGRES_DB }}/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
-  #         sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
+      - name: Update secrets file
+        run: |
+          sed -i "s/<OWM_API_KEY>.*/${{ secrets.OWM_API_KEY_BASE64 }}/" manifests/flask.yaml
+          sed -i "s/<POSTGRES_DATABASE_URI>.*/${{ secrets.POSTGRES_DATABASE_URI_BASE64 }}/" manifests/flask.yaml
+          sed -i "s/<POSTGRES_DB>.*/${{ secreta.POSTGRES_DB }}/" manifests/postgres.yaml
+          sed -i "s/<POSTGRES_USER>.*/${{ secrets.POSTGRES_USER }}/" manifests/postgres.yaml
+          sed -i "s/<POSTGRES_PASSWORD>.*/${{ secrets.POSTGRES_PASSWORD }}/" manifests/postgres.yaml
 
-  #     - name: Install Helm
-  #       uses: azure/setup-helm@v3
-  #       with:
-  #         # version: '<version>' # default is latest (stable)
-  #         token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
-  #       id: install
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          # version: '<version>' # default is latest (stable)
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+        id: install
 
-  #     - name: Install NGINX Controller
-  #       run: |
-  #         helm repo add ingress-nginx \
-  #           https://kubernetes.github.io/ingress-nginx
+      - name: Install NGINX Controller
+        run: |
+          helm repo add ingress-nginx \
+            https://kubernetes.github.io/ingress-nginx
 
-  #         helm repo update
+          helm repo update
 
-  #         helm upgrade --install ingress-nginx ingress-nginx \
-  #           --repo https://kubernetes.github.io/ingress-nginx \
-  #           --namespace ingress-nginx \
-  #           --create-namespace \
-  #           --set-string controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+          helm upgrade --install ingress-nginx ingress-nginx \
+            --repo https://kubernetes.github.io/ingress-nginx \
+            --namespace ingress-nginx \
+            --create-namespace \
+            --set-string controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
 
-  #     - name: Install cert manager
-  #       run: |
-  #         helm repo add jetstack https://charts.jetstack.io
-  #         helm repo update
-  #         helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager  --create-namespace --set installCRDs=true
-  #         kubectl apply -f manifests/cert-issuer-nginx.yaml
+      - name: Install cert manager
+        run: |
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+          helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager  --create-namespace --set installCRDs=true
+          kubectl apply -f manifests/cert-issuer-nginx.yaml
 
-  #     - name: Install Prometheus
-  #       run: |
-  #         kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-  #         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  #         helm repo update
-  #         helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
-  #           --values manifests/prometheus-values.yaml \
-  #           --namespace monitoring \
-  #           --create-namespace \
-  #           --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
+      - name: Install Prometheus
+        run: |
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+            --values manifests/prometheus-values.yaml \
+            --namespace monitoring \
+            --create-namespace \
+            --set alertmanager.persistentVolume.storageClass="gp2",server.persistendVolume.storageClass="gp2"
 
-  #     - name: Deploy postgres and flask to kubernetes
-  #       run: |
-  #         kubectl apply -f manifests/postgres.yaml
-  #         kubectl apply -f manifests/flask.yaml
+      - name: Deploy postgres and flask to kubernetes
+        run: |
+          kubectl apply -f manifests/postgres.yaml
+          kubectl apply -f manifests/flask.yaml
 
-  #     # - name: Install NGINX controller
-  #     #   run: |
-  #     #   # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
+      # - name: Install NGINX controller
+      #   run: |
+      #   # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
 
-  #     - name: Cleanup
-  #       run: |
-  #         aws configure unset aws_access_key_id
-  #         aws configure unset aws_secret_access_key
-  #       if: always()
+      - name: Cleanup
+        run: |
+          aws configure unset aws_access_key_id
+          aws configure unset aws_secret_access_key
+        if: always()
 
-  #       --set controller.ingressClassResource.name="ingress-nginx"
-  #       --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-type="external"
-  #       --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-schema="internet-facing"
+  #     --set controller.ingressClassResource.name="ingress-nginx"
+  #     --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-type="external"
+  #     --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-schema="internet-facing"
 
-  #     kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
+  #   kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
   # obtain the ip address
   # export URL=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
   # cdk deploy dns-stack --args ingress-uri=$URL
