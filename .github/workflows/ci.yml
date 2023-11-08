@@ -32,7 +32,7 @@ jobs:
       - name: Get current date # get the date of the build
         id: date
         run: |
-          source artifacts/tag-version.txt
+          TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
           echo "$TAG_VERSION"
   # build:
   #   name: "🧪 Test app"
