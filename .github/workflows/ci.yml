@@ -34,7 +34,7 @@ jobs:
         run: |
           ls
           pwd
-          TAG_VERSION=$(cat artifacts/tag-version.txt | sed 's/\"//g')
+          TAG_VERSION=$(cat tag-version.txt | sed 's/\"//g')
           echo "$TAG_VERSION"
   # build:
   #   name: "🧪 Test app"
