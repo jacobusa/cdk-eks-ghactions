@@ -51,8 +51,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  # labels:
-  #   app: weather-api
+  labels:
+    app: flask
   name: flask-service
   annotations:
     app.kubernetes.io/instance: flask-service
@@ -70,8 +70,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: flask-ingress
-  # annotations:
-  #   kubernetes.io/ingress.class: ingress-nginx
 spec:
   tls:
     - hosts:
@@ -114,7 +112,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: flask
+      app.kubernetes.io/instance: flask-service
   endpoints:
     - port: web
       path: /metrics

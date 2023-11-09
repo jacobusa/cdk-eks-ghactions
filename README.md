@@ -6,7 +6,7 @@ Fully automated one click deploy of a microservice using cdk and github actions 
 
 <br>
 
-> **_MANUAL STEP_:** The only bootstrapping that is not automated is the manual change of nameservers from your domain registrar to the cdk created hosted zone in route53. Once you run the pipeline once, change the nameservers in your registrar to the route53 name servers and then wait until the app is running at app.DOMAIN.com, grafana.DOMAIN.com, and prometheus.DOMAIN.com.
+> **_MANUAL STEP_:** The only bootstrapping that is not automated is the manual change of nameservers from your domain registrar to the cdk created hosted zone in route53. Once you run the pipeline once, change the nameservers in your registrar to the route53 name servers and then wait until the app is running at app.DOMAIN.com, grafana.DOMAIN.com, and prometheus.DOMAIN.com. Once the nameservers are configured, you may need to delete the cluster certificates (1 in default namespace and 2 in monitoring namespace) and then run the pipeline again for the certificates to take effect.
 
 <br>
 
@@ -68,9 +68,17 @@ cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN --paramete
 cdk destroy --all
 ```
 
+## Grafana dashboard
+
+Once the application is successfully deployed, you can access the grafana dashboard available at grafana.YOUR-DOMAIN. A number of helpful dashboards can be added to visualize the data.
+
+- Postgres dashboard, id: `9628`
+- Flask dashboard, id: `16111`
+- NGINX dashboard, id: `9614`
+
 ## To access pgadmin
 
-- After `docker-compose up` has been run, go to localhost:8888 in browser. The connection host to create is host.docker.internal and the secret is in the docker-compose file.
+- For local development, after `docker-compose up` has been run, go to localhost:8888 in browser. The connection host to create is host.docker.internal and the secret is in the docker-compose file.
 
 ### More about CDK
 
