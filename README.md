@@ -13,6 +13,12 @@ Fully automated one click deploy of a microservice using cdk and github actions 
 > **_GITHUB ACTIONS:_** Before you run the github actions pipeline, be sure to enter the variables in the .env.example file into github actions secrets.
 > <br>
 
+<img width="990" alt="image" src="https://github.com/jacobusa/cdk-eks-ghactions/assets/49039999/d317c110-2a88-4ee0-a272-9985c6693070">
+<img width="1439" alt="image" src="https://github.com/jacobusa/cdk-eks-ghactions/assets/49039999/dbc719b2-6e76-4126-b7ea-d1d763a4203a">
+<img width="1440" alt="image" src="https://github.com/jacobusa/cdk-eks-ghactions/assets/49039999/52ecac21-d009-47f1-86c4-129ffe106b33">
+
+
+
 ## Tools
 
 - Python Flask weather API with migrations equiped
