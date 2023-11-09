@@ -73,7 +73,7 @@ cdk destroy --all
 Once the application is successfully deployed, you can access the grafana dashboard available at grafana.YOUR-DOMAIN. A number of helpful dashboards can be added to visualize the data.
 
 - Postgres dashboard, id: `9628`
-- Flask dashboard, id: `16111`
+- Flask dashboard, see `dashboards` folder for json to import to view flask app.
 - NGINX dashboard, id: `9614`
 
 ## To access pgadmin
