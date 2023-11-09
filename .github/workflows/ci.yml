@@ -276,16 +276,6 @@ jobs:
           cdk bootstrap
           cdk deploy route-stack --parameters route-stack:nlbDomain=$NLB_DOMAIN --parameters route-stack:appDomain=${{ secrets.DOMAIN }} --require-approval=never
 
-  # - name: Install NGINX controller
-  #   run: |
-  #   # kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
-
-  #     --set controller.ingressClassResource.name="ingress-nginx"
-  #     --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-type="external"
-  #     --set controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-schema="internet-facing"
-
-  #   kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n monitoring 4001:9090
   # obtain the ip address
   # export URL=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-  # cdk deploy dns-stack --args ingress-uri=$URL
   # kubectl set image deployment/your-flask-app-deployment flask-app=your-docker-image:latest
